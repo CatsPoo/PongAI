@@ -1,11 +1,12 @@
 import numpy as np
 import gymnasium as gym
+import cv2
 
 class PongEnv(gym.Env):
 
     def __init__(self,render_height = 200,render_width=400,peddal_length = 30,ball_size = 5, render_mode=None):
 
-        self.env_ratio = self.hight/self.width
+        self.env_ratio = 1/render_width
         self.height = render_height * self.env_ratio
         self.width = render_width * self.env_ratio
         self.peddal_length = peddal_length * self.env_ratio
@@ -15,9 +16,9 @@ class PongEnv(gym.Env):
 
         self.action_space  = gym.spaces.Discrete(3)      # up / stay / down
 
-        env_shape = np.array([self.height,self.width])
+        env_shape = np.array([self.width,self.height])
         self.observation_space = gym.spaces.Dict({
-            "ball_pos":   gym.spaces.Box(low = -0.5 * env_shape,high=0.5 * env_shape),
+            "ball_pos":   gym.spaces.Box(low = (-0.5 * env_shape) + self.ball_size,high=(0.5 * env_shape) - self.ball_size),
             "ball_vel":   gym.spaces.Box(low=-1., high=1., shape=(2,), dtype=np.float32),
             "Left_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height, high=0.5 * self.height, shape=(1,), dtype=np.float32),
             "Right_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height, high=0.5 * self.height, shape=(1,), dtype=np.float32),
@@ -49,8 +50,8 @@ class PongEnv(gym.Env):
         # update paddle
         self.paddle_y = np.clip(self.paddle_y +  self.env_ratio(action - 1), -0.5 *self.height, 0.5 * self.height)
         # update ball
-        self.ball_x += self.ball_vel[0]
-        self.ball_y += self.ball_vel[1]
+        self.ball_location[0] += self.ball_vel[0]
+        self.ball_location[1] += self.ball_vel[1]
         # reflect off top/bottom
         if abs(self.ball_location[1]) > self.height / 2.: self.ball_vel[1] *= -1
         # check paddle bounce
@@ -80,9 +81,18 @@ class PongEnv(gym.Env):
 
         return self._obs(), left_peddal_reward,right_peddal_reward, terminated
 
-
+    def env2px(self,x, y):
+        return int((x + self.width) / self.env_ratio),int((y+ self.height)/self.env_ratio)
+    
     def render(self):
         if self.render_mode != "human":
             return
-        # quick text render
-        print(f"Ball=({self.ball_x:.2f},{self.ball_y:.2f}) Paddle={self.paddle_y:.2f}")
+        paddle_thickness = 4
+        rw ,rh = self.env2px(self.width,self.height)
+        print((rw,rh))
+        frame = np.full((rh, rw + (2 * paddle_thickness), 3),255,dtype=np.uint8)
+
+        print(self.env2px(self.ball_location[0],self.ball_location[1]))
+        cv2.circle(frame, self.env2px(self.ball_location[0],self.ball_location[1]), int(10),(0,0,0), thickness=-1)
+
+        return frame
