@@ -46,9 +46,10 @@ class PongEnv(gym.Env):
         return self._obs
 
 
-    def step(self, action):
+    def step(self, left_agent_action,right_agent_action):
         # update paddle
-        self.paddle_y = np.clip(self.paddle_y +  self.env_ratio(action - 1), -0.5 *self.height, 0.5 * self.height)
+        self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio(right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
+        self.left_peddat_center = np.clip(self.left_peddat_center +  self.env_ratio(left_peddal_reward - 1), -0.5 *self.height, 0.5 * self.height)
         # update ball
         self.ball_location[0] += self.ball_vel[0]
         self.ball_location[1] += self.ball_vel[1]
@@ -96,5 +97,6 @@ class PongEnv(gym.Env):
 
         cv2.circle(frame, self.env2px(self.ball_location[0],self.ball_location[1]), self.env2px(self.ball_size),(0,0,0), thickness=-1)
         cv2.line(frame,(window_padding, self.env2px(0,self.left_peddat_center - self.peddal_length/2)[1]),(window_padding, self.env2px(0,self.left_peddat_center + self.peddal_length/2)[1]),(0,0,0),paddle_thickness)
+        cv2.line(frame,(rw + paddle_thickness + window_padding, self.env2px(0,self.right_peddal_center - self.peddal_length/2)[1]),(rw+paddle_thickness + window_padding, self.env2px(0,self.right_peddal_center + self.peddal_length/2)[1]),(0,0,0),paddle_thickness)
 
         return frame
