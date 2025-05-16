@@ -1,0 +1,88 @@
+import numpy as np
+import gymnasium as gym
+
+class PongEnv(gym.Env):
+
+    def __init__(self,render_height = 200,render_width=400,peddal_length = 30,ball_size = 5, render_mode=None):
+
+        self.env_ratio = self.hight/self.width
+        self.height = render_height * self.env_ratio
+        self.width = render_width * self.env_ratio
+        self.peddal_length = peddal_length * self.env_ratio
+        self.ball_size = ball_size * self.env_ratio
+
+        self.render_mode = render_mode
+
+        self.action_space  = gym.spaces.Discrete(3)      # up / stay / down
+
+        env_shape = np.array([self.height,self.width])
+        self.observation_space = gym.spaces.Dict({
+            "ball_pos":   gym.spaces.Box(low = -0.5 * env_shape,high=0.5 * env_shape),
+            "ball_vel":   gym.spaces.Box(low=-1., high=1., shape=(2,), dtype=np.float32),
+            "Left_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height, high=0.5 * self.height, shape=(1,), dtype=np.float32),
+            "Right_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height, high=0.5 * self.height, shape=(1,), dtype=np.float32),
+            "ball_size": gym.spaces.Box(low = 0,high=1,shape=(1,),dtype=np.float32)
+        })
+
+        self.left_peddat_center = None
+        self.right_peddal_center = None
+        self.ball_location = np.array([0.,0.])
+        self.ball_vel = np.array([0.025,0.05])
+
+        self.reset()
+
+    def _obs(self):
+        return np.array([self.ball_location[0],self.ball_location[1],self.ball_vel[0],self.ball_vel[1],self.peddal_length,self.left_peddat_center,self.right_peddal_center], dtype=np.float32)
+    
+    def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
+        
+        random_obs = self.observation_space.sample()
+        self.left_peddat_center = random_obs['Left_Peddal_pos']
+        self.right_peddal_center = random_obs['Right_Peddal_pos']
+        self.ball_location = random_obs['ball_pos']
+
+        return self._obs
+
+
+    def step(self, action):
+        # update paddle
+        self.paddle_y = np.clip(self.paddle_y +  self.env_ratio(action - 1), -0.5 *self.height, 0.5 * self.height)
+        # update ball
+        self.ball_x += self.ball_vel[0]
+        self.ball_y += self.ball_vel[1]
+        # reflect off top/bottom
+        if abs(self.ball_location[1]) > self.height / 2.: self.ball_vel[1] *= -1
+        # check paddle bounce
+        left_peddal_reward , right_peddal_reward , terminated = 0.,0., False
+
+        #if ball in right wall
+        if self.ball_location[0] + self.ball_size > self.width /2:
+            if abs(self.ball_location[1] - (self.right_peddal_center)) < self.peddal_length:
+                self.ball_vel[1] *= -1
+                right_peddal_reward = 0.5
+                left_peddal_reward = 0
+            else:
+                right_peddal_reward = -1.
+                left_peddal_reward = 1
+                terminated = True
+        
+        #if ball in left wall
+        if self.ball_location[0] - self.ball_size < self.width /2:
+            if abs(self.ball_location[1] - (self.left_peddal_center)) < self.peddal_length:
+                self.ball_vel[1] *= -1
+                left_peddal_reward = 0.5
+                right_peddal_reward = 0
+            else:
+                right_peddal_reward = -1.
+                left_peddal_reward = 1
+                terminated = True
+
+        return self._obs(), left_peddal_reward,right_peddal_reward, terminated
+
+
+    def render(self):
+        if self.render_mode != "human":
+            return
+        # quick text render
+        print(f"Ball=({self.ball_x:.2f},{self.ball_y:.2f}) Paddle={self.paddle_y:.2f}")
