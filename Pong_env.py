@@ -20,7 +20,7 @@ class PongEnv(gym.Env):
         self.observation_space = gym.spaces.Dict({
             "ball_pos":   gym.spaces.Box(low = (-0.5 * env_shape) + self.ball_size,high=(0.5 * env_shape) - self.ball_size,dtype=np.float32),
             "ball_vel_y":   gym.spaces.Box(low=-0.01, high=0.01, shape=(1,), dtype=np.float32),
-            "ball_vel_x":   gym.spaces.Box(low=-0.05, high=0.05, shape=(1,), dtype=np.float32),
+            "ball_vel_x":   gym.spaces.Box(low=-0.03, high=0.03, shape=(1,), dtype=np.float32),
             "Left_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length /2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
             "Right_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length/2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
             "ball_size": gym.spaces.Box(low = 0,high=1,shape=(1,),dtype=np.float32)
@@ -47,7 +47,7 @@ class PongEnv(gym.Env):
         super().reset(seed=seed)
         
         self.ball_vel = np.array([0,0])
-        while(abs(self.ball_vel[0]) == abs(self.ball_vel[1]) or abs(self.ball_vel[1]) < 0.005):
+        while(abs(self.ball_vel[0]) == abs(self.ball_vel[1])  or abs(self.ball_vel[0] < 0.01) or abs(self.ball_vel[1] < 0.005)):
             random_obs = self.observation_space.sample()
             self.ball_vel = np.array([random_obs['ball_vel_x'][0],random_obs['ball_vel_y'][0]])
         self.left_peddat_center = random_obs['Left_Peddal_pos']
@@ -62,8 +62,8 @@ class PongEnv(gym.Env):
     
     def step(self, left_agent_action,right_agent_action):
         # update paddle
-        self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio * (right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
-        self.left_peddat_center = np.clip(self.left_peddat_center +  self.env_ratio * (left_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
+        self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio * 3 * (right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
+        self.left_peddat_center = np.clip(self.left_peddat_center +  self.env_ratio * 3 * (left_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
         # update ball
         self.ball_location[0] += self.ball_vel[0]
         self.ball_location[1] += self.ball_vel[1]
