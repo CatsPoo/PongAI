@@ -8,7 +8,7 @@ from.NN import NN
 
 
 class DQN:
-    def __init__(self, state_dim, action_dim, buffer_size=10000, batch_size=64, gamma=0.99, lr=1e-3, epsilon=1.0, epsilon_min=0.05, epsilon_decay=0.995, target_update=10):
+    def __init__(self, state_dim, action_dim, buffer_size=10000, batch_size=64, gamma=0.99, lr=1e-3, epsilon=1.0, epsilon_min=0.05, epsilon_decay=0.9999, target_update=10):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.state_dim = state_dim
         self.action_dim = action_dim
@@ -39,6 +39,7 @@ class DQN:
 
     def train_step(self):
         if len(self.buffer) < self.batch_size:
+            print('Not enought action played to train the agent')
             return
 
         states, actions, rewards, next_states, dones = self.buffer.sample(self.batch_size)

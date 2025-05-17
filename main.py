@@ -41,7 +41,7 @@ def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes):
             left_agent.buffer.push(state,left_agent_action,left_agent_reward,next_state,done)
             right_agent.buffer.push(state,right_agent_action,right_agent_reward,next_state,done)
 
-            left_agent.train_step
+            left_agent.train_step()
             right_agent.train_step()
 
             state=next_state
