@@ -18,8 +18,8 @@ class PongEnv(gym.Env):
 
         env_shape = np.array([self.width,self.height])
         self.observation_space = gym.spaces.Dict({
-            "ball_pos":   gym.spaces.Box(low = (-0.5 * env_shape) + self.ball_size,high=(0.5 * env_shape) - self.ball_size),
-            "ball_vel":   gym.spaces.Box(low=-1., high=1., shape=(2,), dtype=np.float32),
+            "ball_pos":   gym.spaces.Box(low = (-0.5 * env_shape) + self.ball_size,high=(0.5 * env_shape) - self.ball_size,dtype=np.float32),
+            "ball_vel":   gym.spaces.Box(low=-0.01, high=0.01, shape=(2,), dtype=np.float32),
             "Left_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length /2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
             "Right_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length/2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
             "ball_size": gym.spaces.Box(low = 0,high=1,shape=(1,),dtype=np.float32)
@@ -50,9 +50,12 @@ class PongEnv(gym.Env):
         self.right_peddal_center = random_obs['Right_Peddal_pos']
         self.ball_location = random_obs['ball_pos']
 
-        return self._obs
+        return self._obs()
 
 
+    def get_observation_space_size(self):
+        return len(self._obs())
+    
     def step(self, left_agent_action,right_agent_action):
         # update paddle
         self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio * (right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
@@ -97,7 +100,7 @@ class PongEnv(gym.Env):
     
     def render(self):
         if self.render_mode != "human":
-            return
+            return None
         
         window_padding = 15
         render_peddal_thickness = self.env2px(self.paddal_thickness)
