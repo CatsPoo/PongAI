@@ -59,7 +59,7 @@ class PongEnv(gym.Env):
         super().reset(seed=seed)
         
         self.ball_vel = np.array([0,0])
-        while(abs(self.ball_vel[0]) == abs(self.ball_vel[1])  or abs(self.ball_vel[0] < 0.01) or abs(self.ball_vel[1] < 0.005)):
+        while(abs(self.ball_vel[0]) == abs(self.ball_vel[1])  or abs(self.ball_vel[0] < 0.01) or abs(self.ball_vel[1] < 0.003)):
             random_obs = self.observation_space.sample()
             self.ball_vel = np.array([random_obs['ball_vel_x'][0],random_obs['ball_vel_y'][0]])
         self.left_peddat_center = random_obs['Left_Peddal_pos']
@@ -74,8 +74,8 @@ class PongEnv(gym.Env):
     
     def step(self, left_agent_action,right_agent_action):
         # update paddle
-        self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio * 3 * (right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
-        self.left_peddat_center = np.clip(self.left_peddat_center +  self.env_ratio * 3 * (left_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
+        self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio * 6 * (right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
+        self.left_peddat_center = np.clip(self.left_peddat_center +  self.env_ratio * 6 * (left_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
         # update ball
         self.ball_location[0] += self.ball_vel[0]
         self.ball_location[1] += self.ball_vel[1]

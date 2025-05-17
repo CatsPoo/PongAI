@@ -3,7 +3,7 @@ from Pong.Agents.DQN import DQN
 import cv2
 from pathlib import Path
 
-def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes,fps=800):
+def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes,fps=30):
     left_agent_rewards = []
     right_agent_rewards = []
 
@@ -38,14 +38,15 @@ def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes,fps=800):
     return left_agent_rewards, right_agent_rewards
 
 def main():
+    HERE = Path(__file__).resolve().parent
     env = PongEnv(render_mode='human')
     env.reset()
     left_agent = DQN(env.get_observation_space_size(),env.action_space.n)
     right_agent = DQN(env.get_observation_space_size(),env.action_space.n)
-    left_rewards,right_rewards = train_agents(env,left_agent,right_agent,10)
+    left_rewards,right_rewards = train_agents(env,left_agent,right_agent,10000,500)
 
-    HERE = Path(__file__).resolve().parent
-    right_agent.save(HERE/'../Trained_Models/')
+    right_agent.save(HERE/'../Trained_Models/right')
+    left_agent.save(HERE/'../Trained_Models/left')
 
 
 if __name__ == '__main__':

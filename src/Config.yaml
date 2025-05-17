@@ -5,8 +5,8 @@ env:
   peddal_length: 60
   ball_size: 10
 
-  ball_vel_x: 0.025
-  ball_vel_y: 0.01
+  ball_vel_x: 0.12
+  ball_vel_y: 0.05
 
   peddal_thickness: 10
   board_horizontal_padding: 15
@@ -18,7 +18,7 @@ env:
   
 agent:
     gamma: 0.99
-    lr: 0.003
+    lr: 0.01
     epsilon: 1
     epsilon_min: 0.05
     epsilon_decay: 0.9999
