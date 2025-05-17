@@ -11,7 +11,7 @@ class PongEnv(gym.Env):
         self.width = render_width * self.env_ratio
         self.peddal_length = peddal_length * self.env_ratio
         self.ball_size = ball_size * self.env_ratio
-
+        self.paddal_thickness = 10 * self.env_ratio
         self.render_mode = render_mode
 
         self.action_space  = gym.spaces.Discrete(3)      # up / stay / down
@@ -67,7 +67,7 @@ class PongEnv(gym.Env):
         left_peddal_reward , right_peddal_reward , terminated = 0.,0., False
 
         #if ball in right wall
-        if self.ball_location[0] + self.ball_size > self.width /2:
+        if self.ball_location[0] - self.ball_size - self.paddal_thickness/4 > self.width:
             if abs(self.ball_location[1] - (self.right_peddal_center)) < self.peddal_length:
                 self.ball_vel[0] *= -1
                 right_peddal_reward = 0.5
@@ -78,7 +78,7 @@ class PongEnv(gym.Env):
                 terminated = True
         
         #if ball in left wall
-        if self.ball_location[0] - self.ball_size < self.width /2:
+        if self.ball_location[0]+ self.ball_size + self.paddal_thickness /4< -self.width:
             if abs(self.ball_location[1] - (self.left_peddat_center)) < self.peddal_length:
                 self.ball_vel[0] *= -1
                 left_peddal_reward = 0.5
@@ -98,13 +98,21 @@ class PongEnv(gym.Env):
     def render(self):
         if self.render_mode != "human":
             return
+        
         window_padding = 15
-        paddle_thickness = 10
-        rw ,rh = self.env2px(self.width,self.height)
-        frame = np.full((rh, rw + (2 * paddle_thickness) + window_padding, 3),255,dtype=np.uint8)
+        render_peddal_thickness = self.env2px(self.paddal_thickness)
+        render_ball_size = self.env2px(self.ball_size)
+        render_left_peddat_top = self.env2px(0,self.left_peddat_center - self.peddal_length/2)[1]
+        render_left_peddat_bottom = self.env2px(0,self.left_peddat_center + self.peddal_length/2)[1]
+        render_right_peddat_top = self.env2px(0,self.right_peddal_center - self.peddal_length/2)[1]
+        render_right_peddal_bottom = self.env2px(0,self.right_peddal_center + self.peddal_length/2)[1]
+        render_ball_location = self.env2px(self.ball_location[0],self.ball_location[1])
 
-        cv2.circle(frame, self.env2px(self.ball_location[0],self.ball_location[1]), self.env2px(self.ball_size),(0,0,0), thickness=-1)
-        cv2.line(frame,(window_padding, self.env2px(0,self.left_peddat_center - self.peddal_length/2)[1]),(window_padding, self.env2px(0,self.left_peddat_center + self.peddal_length/2)[1]),(0,0,0),paddle_thickness)
-        cv2.line(frame,(rw + paddle_thickness + window_padding, self.env2px(0,self.right_peddal_center - self.peddal_length/2)[1]),(rw+paddle_thickness + window_padding, self.env2px(0,self.right_peddal_center + self.peddal_length/2)[1]),(0,0,0),paddle_thickness)
+        rw ,rh = self.env2px(self.width,self.height)
+        frame = np.full((rh, rw + (2 * render_peddal_thickness) + window_padding, 3),255,dtype=np.uint8)
+        
+        cv2.circle(frame, render_ball_location, render_ball_size,(0,0,0), thickness=-1)
+        cv2.line(frame,(window_padding, render_left_peddat_top),(window_padding, render_left_peddat_bottom),(0,0,0),render_peddal_thickness)
+        cv2.line(frame,(rw + render_peddal_thickness + window_padding, render_right_peddat_top),(rw+render_peddal_thickness + window_padding, render_right_peddal_bottom),(0,0,0),render_peddal_thickness)
 
         return frame

@@ -10,7 +10,7 @@ def main():
         left_agent_action = env.action_space.sample()
         right_agent_action = env.action_space.sample()
 
-        obs = env.step(left_agent_action,right_agent_action)
+        obs,left_reward,right_reward,done = env.step(left_agent_action,right_agent_action)
         #randomly game loop
 
         frame = env.render()
