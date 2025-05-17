@@ -18,7 +18,7 @@ import cv2
 #         cv2.imshow('frame',frame)
 #         cv2.waitKey(int(1000 / 30))
 
-def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes):
+def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes,fps=30):
     left_agent_rewards = []
     right_agent_rewards = []
 
@@ -32,7 +32,7 @@ def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes):
             frame = env.render()
             if(frame.any()):
                 cv2.imshow('frame',frame)
-                cv2.waitKey(int(1000 /700))
+                cv2.waitKey(int(1000 /fps))
 
             left_agent_action = left_agent.select_action(state)
             right_agent_action = right_agent.select_action(state)

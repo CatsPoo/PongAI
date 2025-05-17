@@ -19,7 +19,8 @@ class PongEnv(gym.Env):
         env_shape = np.array([self.width,self.height])
         self.observation_space = gym.spaces.Dict({
             "ball_pos":   gym.spaces.Box(low = (-0.5 * env_shape) + self.ball_size,high=(0.5 * env_shape) - self.ball_size,dtype=np.float32),
-            "ball_vel":   gym.spaces.Box(low=-0.01, high=0.01, shape=(2,), dtype=np.float32),
+            "ball_vel_y":   gym.spaces.Box(low=-0.01, high=0.01, shape=(1,), dtype=np.float32),
+            "ball_vel_x":   gym.spaces.Box(low=-0.05, high=0.05, shape=(1,), dtype=np.float32),
             "Left_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length /2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
             "Right_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length/2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
             "ball_size": gym.spaces.Box(low = 0,high=1,shape=(1,),dtype=np.float32)
@@ -27,13 +28,13 @@ class PongEnv(gym.Env):
 
         self.left_peddat_center = None
         self.right_peddal_center = None
-        self.ball_location = np.array([0.,0.])
-        self.ball_vel = np.array([0.0055,0.01])
+        self.ball_location = None
+        self.ball_vel = None
 
         self.reset()
 
     def _obs(self):
-            return np.array([
+        return np.array([
         self.ball_location[0],
         self.ball_location[1],
         self.ball_vel[0],
@@ -45,7 +46,10 @@ class PongEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         
-        random_obs = self.observation_space.sample()
+        self.ball_vel = np.array([0,0])
+        while(abs(self.ball_vel[0]) == abs(self.ball_vel[1]) or abs(self.ball_vel[1]) < 0.005):
+            random_obs = self.observation_space.sample()
+            self.ball_vel = np.array([random_obs['ball_vel_x'][0],random_obs['ball_vel_y'][0]])
         self.left_peddat_center = random_obs['Left_Peddal_pos']
         self.right_peddal_center = random_obs['Right_Peddal_pos']
         self.ball_location = random_obs['ball_pos']
@@ -81,7 +85,7 @@ class PongEnv(gym.Env):
                 terminated = True
         
         #if ball in left wall
-        if self.ball_location[0]+ self.ball_size + self.paddal_thickness /4< -self.width:
+        if self.ball_location[0]- self.ball_size - self.paddal_thickness /4< -self.width:
             if abs(self.ball_location[1] - (self.left_peddat_center)) < self.peddal_length:
                 self.ball_vel[0] *= -1
                 left_peddal_reward = 0.5
