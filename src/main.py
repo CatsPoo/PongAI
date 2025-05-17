@@ -1,24 +1,9 @@
-from Pong_env import PongEnv
-from Agents_Model.DQN import DQN
+from Pong.Environment.Pong_env import PongEnv
+from Pong.Agents.DQN import DQN
 import cv2
+from pathlib import Path
 
-# def main():
-#     env = PongEnv(render_height=200,render_width=400,render_mode='human')
-#     obs = env.reset()
-
-#     done = False
-#     while (not done):
-#         left_agent_action = env.action_space.sample()
-#         right_agent_action = env.action_space.sample()
-
-#         obs,left_reward,right_reward,done = env.step(left_agent_action,right_agent_action)
-#         #randomly game loop
-
-#         frame = env.render()
-#         cv2.imshow('frame',frame)
-#         cv2.waitKey(int(1000 / 30))
-
-def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes,fps=800):
+def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes,fps=30):
     left_agent_rewards = []
     right_agent_rewards = []
 
@@ -53,11 +38,16 @@ def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes,fps=800):
     return left_agent_rewards, right_agent_rewards
 
 def main():
-    env = PongEnv(render_height=200,render_width=400,render_mode='human')
+    HERE = Path(__file__).resolve().parent
+    env = PongEnv(render_mode='human')
     env.reset()
     left_agent = DQN(env.get_observation_space_size(),env.action_space.n)
     right_agent = DQN(env.get_observation_space_size(),env.action_space.n)
-    left_rewards,right_rewards = train_agents(env,left_agent,right_agent,10000)
+    left_rewards,right_rewards = train_agents(env,left_agent,right_agent,10000,500)
+
+    right_agent.save(HERE/'../Trained_Models/right')
+    left_agent.save(HERE/'../Trained_Models/left')
+
 
 if __name__ == '__main__':
     main()
