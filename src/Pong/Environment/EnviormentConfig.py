@@ -14,4 +14,9 @@ class EnciormentConfig:
     peddal_thickness: int
     board_horizontal_padding:int
 
+    ball_catch_reward: float
+    ball_miss_reward: float
+    step_reward: float
+    goal_reward: float
+
 

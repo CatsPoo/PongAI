@@ -1,0 +1,29 @@
+#  Configurations.yaml  ── COPY EXACTLY THIS BLOCK
+env:
+  width: 400
+  height: 200
+  peddal_length: 60
+  ball_size: 10
+
+  ball_vel_x: 0.025
+  ball_vel_y: 0.01
+
+  peddal_thickness: 10
+  board_horizontal_padding: 15
+
+  ball_catch_reward: 1
+  ball_miss_reward: -1
+  step_reward: 0.001
+  goal_reward: 0.1
+  
+agent:
+    gamma: 0.99
+    lr: 0.003
+    epsilon: 1
+    epsilon_min: 0.05
+    epsilon_decay: 0.9999
+
+    buffer_size: 10000
+    batch_size: 64
+    target_update: 10
+

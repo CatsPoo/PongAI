@@ -1,12 +1,17 @@
 from abc import ABC, abstractmethod
-
+from pathlib import Path
+from Pong.Configurations.ConfigurationLoader import load_config
+from Pong.Agents.AgentConfig import AgenttConfig as ac
 class AbstractAgent(ABC):
-    def __init__(self,gamma=0.99, lr=1e-3, epsilon=1.0, epsilon_min=0.05, epsilon_decay=0.9999):
-        self.gamma = gamma
-        self.lr = lr
-        self.epsilon = epsilon
-        self.epsilon_min = epsilon_min
-        self.epsilon_decay = epsilon_decay
+    def __init__(self):
+        HERE = Path(__file__).resolve().parent
+        self.agent_cfg: ac = load_config(Path(HERE/'../../Config.yaml'),ac,'agent')
+
+        self.gamma = self.agent_cfg.gamma
+        self.lr = self.agent_cfg.lr
+        self.epsilon = self.agent_cfg.epsilon
+        self.epsilon_min = self.agent_cfg.epsilon_min
+        self.epsilon_decay = self.agent_cfg.epsilon_decay
 
         self.step_count = 0
     

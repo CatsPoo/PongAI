@@ -1,7 +1,7 @@
 import numpy as np
 import gymnasium as gym
 import cv2
-from Pong.Environment.EnviormentConfiguration import EnciormentConfig as ec
+from Pong.Environment.EnviormentConfig import EnciormentConfig as ec
 from Pong.Configurations.ConfigurationLoader import load_config
 from pathlib import Path
 
@@ -10,7 +10,8 @@ class PongEnv(gym.Env):
     def __init__(self, render_mode=None):
 
         HERE = Path(__file__).resolve().parent
-        self.env_cfg: ec = load_config(Path(HERE/'../../Configurations.yaml'),ec,'env')
+        self.env_cfg: ec = load_config(Path(HERE/'../../Config.yaml'),ec,'env')
+
         self.env_ratio = 1/self.env_cfg.width
         self.height = self.env_cfg.height * self.env_ratio
         self.width = self.env_cfg.width * self.env_ratio
@@ -18,6 +19,11 @@ class PongEnv(gym.Env):
         self.ball_size = self.env_cfg.ball_size * self.env_ratio
         self.paddal_thickness = self.env_cfg.peddal_thickness * self.env_ratio
         self.render_mode = render_mode
+
+        self.ball_catch_reward = self.env_cfg.ball_catch_reward
+        self.ball_miss_reward= self.env_cfg.ball_miss_reward
+        self.step_reward= self.env_cfg.step_reward
+        self.goal_reward= self.env_cfg.goal_reward
 
         self.action_space  = gym.spaces.Discrete(3)      # up / stay / down
 
@@ -77,28 +83,26 @@ class PongEnv(gym.Env):
         if abs(self.ball_location[1]) > self.height: 
             self.ball_vel[1] *= -1
         # check paddle bounce
-        left_peddal_reward , right_peddal_reward , terminated = 0.,0., False
+        left_peddal_reward , right_peddal_reward , terminated =  self.step_reward,self.step_reward, False
 
         #if ball in right wall
         if self.ball_location[0] - self.ball_size - self.paddal_thickness/4 > self.width:
             if abs(self.ball_location[1] - (self.right_peddal_center)) < self.peddal_length:
                 self.ball_vel[0] *= -1
-                right_peddal_reward = 0.5
-                left_peddal_reward = 0
+                right_peddal_reward += self.ball_catch_reward
             else:
-                right_peddal_reward = -1.
-                left_peddal_reward = 1
+                right_peddal_reward += self.ball_miss_reward
+                left_peddal_reward += self.goal_reward
                 terminated = True
         
         #if ball in left wall
         if self.ball_location[0]- self.ball_size - self.paddal_thickness /4< -self.width:
             if abs(self.ball_location[1] - (self.left_peddat_center)) < self.peddal_length:
                 self.ball_vel[0] *= -1
-                left_peddal_reward = 0.5
-                right_peddal_reward = 0
+                left_peddal_reward += self.ball_catch_reward
             else:
-                right_peddal_reward = -1.
-                left_peddal_reward = 1
+                right_peddal_reward += self.ball_miss_reward
+                left_peddal_reward += self.goal_reward
                 terminated = True
 
         return self._obs(), left_peddal_reward,right_peddal_reward, terminated

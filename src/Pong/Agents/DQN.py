@@ -9,8 +9,8 @@ from Pong.Agents.AbstractAgent import AbstractAgent
 
 
 class DQN(AbstractAgent):
-    def __init__(self, state_dim, action_dim, buffer_size=10000, batch_size=64, gamma=0.99, lr=1e-3, epsilon=1.0, epsilon_min=0.05, epsilon_decay=0.9999, target_update=10):
-        super().__init__(gamma,lr,epsilon,epsilon_min,epsilon_decay)
+    def __init__(self, state_dim, action_dim):
+        super().__init__()
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.state_dim = state_dim
         self.action_dim = action_dim
@@ -20,11 +20,11 @@ class DQN(AbstractAgent):
         self.target_net.load_state_dict(self.q_net.state_dict())
         self.target_net.eval()
 
-        self.optimizer = optim.Adam(self.q_net.parameters(), lr=lr)
-        self.buffer = ReplayBuffer(buffer_size)
-        self.batch_size = batch_size
+        self.optimizer = optim.Adam(self.q_net.parameters(), lr=self.lr)
+        self.buffer = ReplayBuffer(self.agent_cfg.batch_size)
+        self.batch_size = self.agent_cfg.batch_size
 
-        self.target_update = target_update
+        self.target_update = self.agent_cfg.target_update
 
     def select_action(self, state):
         if random.random() < self.epsilon:
