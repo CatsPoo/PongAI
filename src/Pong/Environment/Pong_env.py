@@ -1,17 +1,22 @@
 import numpy as np
 import gymnasium as gym
 import cv2
+from Pong.Environment.EnviormentConfiguration import EnciormentConfig as ec
+from Pong.Configurations.ConfigurationLoader import load_config
+from pathlib import Path
 
 class PongEnv(gym.Env):
 
-    def __init__(self,render_height = 200,render_width=400,peddal_length = 60,ball_size = 10, render_mode=None):
+    def __init__(self, render_mode=None):
 
-        self.env_ratio = 1/render_width
-        self.height = render_height * self.env_ratio
-        self.width = render_width * self.env_ratio
-        self.peddal_length = peddal_length * self.env_ratio
-        self.ball_size = ball_size * self.env_ratio
-        self.paddal_thickness = 10 * self.env_ratio
+        HERE = Path(__file__).resolve().parent
+        self.env_cfg: ec = load_config(Path(HERE/'../../Configurations.yaml'),ec,'env')
+        self.env_ratio = 1/self.env_cfg.width
+        self.height = self.env_cfg.height * self.env_ratio
+        self.width = self.env_cfg.width * self.env_ratio
+        self.peddal_length = self.env_cfg.peddal_length * self.env_ratio
+        self.ball_size = self.env_cfg.ball_size * self.env_ratio
+        self.paddal_thickness = self.env_cfg.peddal_thickness * self.env_ratio
         self.render_mode = render_mode
 
         self.action_space  = gym.spaces.Discrete(3)      # up / stay / down
@@ -19,10 +24,11 @@ class PongEnv(gym.Env):
         env_shape = np.array([self.width,self.height])
         self.observation_space = gym.spaces.Dict({
             "ball_pos":   gym.spaces.Box(low = (-0.5 * env_shape) + self.ball_size,high=(0.5 * env_shape) - self.ball_size,dtype=np.float32),
-            "ball_vel_y":   gym.spaces.Box(low=-0.01, high=0.01, shape=(1,), dtype=np.float32),
-            "ball_vel_x":   gym.spaces.Box(low=-0.03, high=0.03, shape=(1,), dtype=np.float32),
+            "ball_vel_y":   gym.spaces.Box(low=-self.env_cfg.ball_vel_y, high=self.env_cfg.ball_vel_y, shape=(1,), dtype=np.float32),
+            "ball_vel_x":   gym.spaces.Box(low=-self.env_cfg.ball_vel_x, high=self.env_cfg.ball_vel_x, shape=(1,), dtype=np.float32),
             "Left_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length /2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
             "Right_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length/2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
+            #For future usage, define the ball size as feature
             "ball_size": gym.spaces.Box(low = 0,high=1,shape=(1,),dtype=np.float32)
         })
 

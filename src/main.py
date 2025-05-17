@@ -1,5 +1,5 @@
-from Pong_env import PongEnv
-from Agents_Model.DQN import DQN
+from Pong.Environment.Pong_env import PongEnv
+from Pong.Agents.DQN import DQN
 import cv2
 
 # def main():
@@ -53,7 +53,7 @@ def train_agents(env:PongEnv,left_agent:DQN,right_agent:DQN,episodes,fps=800):
     return left_agent_rewards, right_agent_rewards
 
 def main():
-    env = PongEnv(render_height=200,render_width=400,render_mode='human')
+    env = PongEnv(render_mode='human')
     env.reset()
     left_agent = DQN(env.get_observation_space_size(),env.action_space.n)
     right_agent = DQN(env.get_observation_space_size(),env.action_space.n)
