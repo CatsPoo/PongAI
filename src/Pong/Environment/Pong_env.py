@@ -43,6 +43,9 @@ class PongEnv(gym.Env):
         self.ball_location = None
         self.ball_vel = None
 
+        self.left_ball_touches =None
+        self.right_ball_touches = None
+
         self.reset()
 
     def _obs(self):
@@ -58,6 +61,8 @@ class PongEnv(gym.Env):
     def reset(self, seed=None, options=None):
         super().reset(seed=seed)
         
+        self.left_ball_touches =0
+        self.right_ball_touches=0
         self.ball_vel = np.array([0,0])
         while(abs(self.ball_vel[0]) == abs(self.ball_vel[1])  or abs(self.ball_vel[0] < 0.01) or abs(self.ball_vel[1] < 0.003)):
             random_obs = self.observation_space.sample()
@@ -74,8 +79,8 @@ class PongEnv(gym.Env):
     
     def step(self, left_agent_action,right_agent_action):
         # update paddle
-        self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio * 6 * (right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
-        self.left_peddat_center = np.clip(self.left_peddat_center +  self.env_ratio * 6 * (left_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
+        self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio * self.env_cfg.peddal_speed * (right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
+        self.left_peddat_center = np.clip(self.left_peddat_center +  self.env_ratio * self.env_cfg.peddal_speed * (left_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
         # update ball
         self.ball_location[0] += self.ball_vel[0]
         self.ball_location[1] += self.ball_vel[1]
@@ -90,9 +95,10 @@ class PongEnv(gym.Env):
             if abs(self.ball_location[1] - (self.right_peddal_center)) < self.peddal_length:
                 self.ball_vel[0] *= -1
                 right_peddal_reward += self.ball_catch_reward
+                self.right_ball_touches+=1
             else:
                 right_peddal_reward += self.ball_miss_reward
-                left_peddal_reward += self.goal_reward
+                left_peddal_reward += self.goal_reward * self.left_ball_touches
                 terminated = True
         
         #if ball in left wall
@@ -100,9 +106,10 @@ class PongEnv(gym.Env):
             if abs(self.ball_location[1] - (self.left_peddat_center)) < self.peddal_length:
                 self.ball_vel[0] *= -1
                 left_peddal_reward += self.ball_catch_reward
+                self.left_ball_touches +=1
             else:
-                right_peddal_reward += self.ball_miss_reward
-                left_peddal_reward += self.goal_reward
+                left_peddal_reward += self.ball_miss_reward
+                right_peddal_reward += self.goal_reward * self.right_ball_touches
                 terminated = True
 
         return self._obs(), left_peddal_reward,right_peddal_reward, terminated
