@@ -6,6 +6,7 @@ class EnciormentConfig:
     width: int
     height:int
     peddal_length: int
+    peddal_speed: float
     ball_size: int
 
     ball_vel_x : float
