@@ -90,7 +90,10 @@ def main():
 
     left_agent = DQN(env.get_observation_space_size(),env.action_space.n)
     right_agent = DQN(env.get_observation_space_size(),env.action_space.n)
-    left_rewards,right_rewards,epsilons = train_agents(env,left_agent,right_agent,100000,500)
+    # left_agent = DQN.load(HERE/'../Trained_Models/left')
+    # right_agent = DQN.load(HERE/'../Trained_Models/right')
+
+    left_rewards,right_rewards,epsilons = train_agents(env,left_agent,right_agent,100000,30)
 
 
     right_agent.save(HERE/'../Trained_Models/right')
