@@ -68,7 +68,6 @@ class PongEnv(gym.Env):
         self.left_peddat_center = random_obs['Left_Peddal_pos']
         self.right_peddal_center = random_obs['Right_Peddal_pos']
         self.ball_location = np.array([random_obs['ball_pos_x'][0],random_obs['ball_pos_y'][0]]) 
-        print(self.ball_location)
 
         return self._obs()
 
@@ -78,16 +77,36 @@ class PongEnv(gym.Env):
     
     def step(self, left_agent_action,right_agent_action):
         # update paddle
+        last_right_peddal_center = self.right_peddal_center
+        last_left_peddal_center = self.left_peddat_center
+        last_ball_location = self.ball_location
+
         self.right_peddal_center = np.clip(self.right_peddal_center +  self.env_ratio * self.env_cfg.peddal_speed * (right_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
         self.left_peddat_center = np.clip(self.left_peddat_center +  self.env_ratio * self.env_cfg.peddal_speed * (left_agent_action - 1), -0.5 *self.height, 0.5 * self.height)
         # update ball
         self.ball_location[0] += self.ball_vel[0]
         self.ball_location[1] += self.ball_vel[1]
+
         # reflect off top/bottom
         if abs(self.ball_location[1]) > self.height: 
             self.ball_vel[1] *= -1
         # check paddle bounce
         left_peddal_reward , right_peddal_reward , terminated =  self.step_reward,self.step_reward, False
+
+        last_left_peddat_ball_sistance = abs(last_right_peddal_center - last_ball_location[1])
+        last_right_peddat_ball_sistance =abs(last_left_peddal_center - last_ball_location[1])
+        current_left_pedat_ball_distance = abs(self.left_peddat_center - self.ball_location[1])
+        current_right_pedat_ball_distance = abs(self.right_peddal_center - self.ball_location[1])
+
+        if(current_left_pedat_ball_distance <= last_left_peddat_ball_sistance):
+            left_peddal_reward  += self.env_cfg.distace_change_reward
+        else:
+            left_peddal_reward -= self.env_cfg.distace_change_reward
+
+        if(current_right_pedat_ball_distance <= last_right_peddat_ball_sistance):
+            right_peddal_reward  += self.env_cfg.distace_change_reward
+        else:
+            right_peddal_reward -= self.env_cfg.distace_change_reward
 
         #if ball in right wall
         if self.ball_location[0] - self.ball_size - self.paddal_thickness/4 > self.width:

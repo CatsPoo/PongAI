@@ -93,7 +93,7 @@ def main():
     # left_agent = DQN.load(HERE/'../Trained_Models/left')
     # right_agent = DQN.load(HERE/'../Trained_Models/right')
 
-    left_rewards,right_rewards,epsilons = train_agents(env,left_agent,right_agent,100000,30)
+    left_rewards,right_rewards,epsilons = train_agents(env,left_agent,right_agent,100000,24)
 
 
     right_agent.save(HERE/'../Trained_Models/right')

@@ -15,6 +15,7 @@ env:
   ball_catch_reward: 1
   ball_miss_reward: -1
   step_reward: 0.0001
+  distace_change_reward: 0.01
   goal_reward: 0.1
   
 agent:
