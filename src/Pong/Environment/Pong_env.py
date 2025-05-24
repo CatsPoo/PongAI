@@ -29,13 +29,12 @@ class PongEnv(gym.Env):
 
         env_shape = np.array([self.width,self.height])
         self.observation_space = gym.spaces.Dict({
-            "ball_pos":   gym.spaces.Box(low = (-0.5 * env_shape) + self.ball_size,high=(0.5 * env_shape) - self.ball_size,dtype=np.float32),
+            "ball_pos_x":   gym.spaces.Box(low = (-0.5 * env_shape[0]) + self.ball_size/2,high=(0.5 * env_shape[1]) - self.ball_size/2,shape=(1,), dtype=np.float32),
+            "ball_pos_y":   gym.spaces.Box(low = (-0.5 * env_shape[1]) + self.ball_size/2,high=(0.5 * env_shape[1]) - self.ball_size/2,shape=(1,),dtype=np.float32),
             "ball_vel_y":   gym.spaces.Box(low=-self.env_cfg.ball_vel_y, high=self.env_cfg.ball_vel_y, shape=(1,), dtype=np.float32),
             "ball_vel_x":   gym.spaces.Box(low=-self.env_cfg.ball_vel_x, high=self.env_cfg.ball_vel_x, shape=(1,), dtype=np.float32),
             "Left_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length /2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
             "Right_Peddal_pos": gym.spaces.Box(low= -0.5 * self.height + self.peddal_length/2, high=0.5 * self.height - self.peddal_length /2, shape=(1,), dtype=np.float32),
-            #For future usage, define the ball size as feature
-            "ball_size": gym.spaces.Box(low = 0,high=1,shape=(1,),dtype=np.float32)
         })
 
         self.left_peddat_center = None
@@ -54,7 +53,6 @@ class PongEnv(gym.Env):
         self.ball_location[1],
         self.ball_vel[0],
         self.ball_vel[1],
-        self.peddal_length,
         float(self.left_peddat_center),   # unwrap 1-element array → scalar
         float(self.right_peddal_center)], dtype=np.float32)
     
@@ -63,13 +61,14 @@ class PongEnv(gym.Env):
         
         self.left_ball_touches =0
         self.right_ball_touches=0
-        self.ball_vel = np.array([0,0])
-        while(abs(self.ball_vel[0]) == abs(self.ball_vel[1])  or abs(self.ball_vel[0] < 0.01) or abs(self.ball_vel[1] < 0.003)):
-            random_obs = self.observation_space.sample()
-            self.ball_vel = np.array([random_obs['ball_vel_x'][0],random_obs['ball_vel_y'][0]])
+        self.ball_vel = np.array([self.env_cfg.ball_vel_x,self.env_cfg.ball_vel_y])
+        if(np.random.rand()<0.5):self.ball_vel[0] *= -1
+        if(np.random.rand()<0.5):self.ball_vel[1] *= -1
+        random_obs = self.observation_space.sample()
         self.left_peddat_center = random_obs['Left_Peddal_pos']
         self.right_peddal_center = random_obs['Right_Peddal_pos']
-        self.ball_location = random_obs['ball_pos']
+        self.ball_location = np.array([random_obs['ball_pos_x'][0],random_obs['ball_pos_y'][0]]) 
+        print(self.ball_location)
 
         return self._obs()
 

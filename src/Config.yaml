@@ -3,11 +3,11 @@ env:
   width: 400
   height: 200
   peddal_length: 60
-  peddal_speed: 20
+  peddal_speed: 10
   ball_size: 10
 
-  ball_vel_x: 0.11
-  ball_vel_y: 0.05
+  ball_vel_x: 0.08
+  ball_vel_y: 0.03
 
   peddal_thickness: 10
   board_horizontal_padding: 15
@@ -25,6 +25,6 @@ agent:
     epsilon_decay: 0.9999
 
     buffer_size: 30000
-    batch_size: 64
+    batch_size: 256
     target_update: 30
 
