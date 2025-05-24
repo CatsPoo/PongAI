@@ -19,5 +19,6 @@ class EnciormentConfig:
     ball_miss_reward: float
     step_reward: float
     goal_reward: float
+    distace_change_reward:float
 
 
