@@ -48,7 +48,7 @@ def main():
     left_agent = DQN(env.get_observation_space_size(),env.action_space.n)
     right_agent = DQN(env.get_observation_space_size(),env.action_space.n)
 
-    display = Display(200,400,50,True,24)
+    display = Display(200,400,50,True,600)
     # left_agent = DQN.load(HERE/'../Trained_Models/left')
     # right_agent = DQN.load(HERE/'../Trained_Models/right')
 

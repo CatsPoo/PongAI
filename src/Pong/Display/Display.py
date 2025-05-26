@@ -38,7 +38,7 @@ class Display:
         fig, ax1 = plt.subplots(figsize=figsize, dpi=self.dpi)
 
         ax1.plot(ep_idx, self.left_agent_rewards,  color="tab:blue",  label="Left reward")
-        ax1.plot(ep_idx, self.right_agent_rewards, color="tab:green", label="Right reward")
+        ax1.plot(ep_idx, self.right_agent_rewards, color="tab:red", label="Right reward")
         ax1.set_xlabel("Episode")
         ax1.set_ylabel("Reward")
         ax1.tick_params(axis="y", labelcolor="tab:blue")
@@ -47,9 +47,9 @@ class Display:
 
         # epsilon on a second Y axis
         ax2 = ax1.twinx()
-        ax2.plot(ep_idx, self.epsilons, color="tab:red", label="Epsilon")
-        ax2.set_ylabel("Epsilon", color="tab:red")
-        ax2.tick_params(axis="y", labelcolor="tab:red")
+        ax2.plot(ep_idx, self.epsilons, color="tab:green", label="Epsilon")
+        ax2.set_ylabel("Epsilon", color="tab:green")
+        ax2.tick_params(axis="y", labelcolor="tab:green")
         ax2.legend(loc="upper right")
 
         fig.tight_layout(pad=1.2)

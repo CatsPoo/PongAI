@@ -3,11 +3,11 @@ env:
   width: 400
   height: 200
   peddal_length: 60
-  peddal_speed: 10
+  peddal_speed: 15
   ball_size: 10
 
-  ball_vel_x: 0.08
-  ball_vel_y: 0.03
+  ball_vel_x: 0.05
+  ball_vel_y: 0.04
 
   peddal_thickness: 10
   board_horizontal_padding: 15
@@ -15,17 +15,17 @@ env:
   ball_catch_reward: 1
   ball_miss_reward: -1
   step_reward: 0.0001
-  distace_change_reward: 0.01
-  goal_reward: 0.1
+  distace_change_reward: 0.1
+  goal_reward: 0
   
 agent:
     gamma: 0.99
-    lr: 0.01
+    lr: 0.05
     epsilon: 1
-    epsilon_min: 0.15
-    epsilon_decay: 0.9999
+    epsilon_min: 0.3
+    epsilon_decay: 0.999999
 
-    buffer_size: 30000
-    batch_size: 256
-    target_update: 30
+    buffer_size: 50000
+    batch_size: 1024
+    target_update: 512
 
